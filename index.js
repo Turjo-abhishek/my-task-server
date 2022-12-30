@@ -27,10 +27,12 @@ async function run() {
     });
 
     app.get("/tasks", async(req, res) => {
-        const query = {};
+      const userEmail = req.query.email;
+        const query = {email: userEmail};
         const tasks = await tasksCollection.find(query).toArray();
         res.send(tasks);
     })
+
     app.get("/tasks/:id", async(req, res) => {
         const id = req.params.id;
         const query = {_id: ObjectId(id)};
@@ -38,10 +40,16 @@ async function run() {
         res.send(task);
     })
 
+    app.delete("/tasks/:id", async(req, res) => {
+      const id = req.params.id;
+      const filter = {_id: ObjectId(id)};
+      const result = await tasksCollection.deleteOne(filter);
+      res.send(result);
+  })
+
     app.get("/completedtasks", async(req, res) => {
-        console.log(req.query);
-        const isCompleted = Boolean(req.query.completed);
-        const query = {completed: isCompleted};
+        const userEmail = req.query.email;
+        const query = {email: userEmail, completed: true};
         const tasks = await tasksCollection.find(query).toArray();
         res.send(tasks);
     })
