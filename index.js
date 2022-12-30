@@ -19,6 +19,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const tasksCollection = client.db("Turjos-database").collection("tasks");
+    const commentsCollection = client.db("Turjos-database").collection("comments");
 
     app.post("/tasks", async(req, res) => {
         const task = req.body;
@@ -67,6 +68,26 @@ async function run() {
         const result = await tasksCollection.updateOne(filter, updatedDoc, options);
         res.send(result);
     });
+
+    app.post("/comments", async(req, res) => {
+      const comment = req.body;
+      const result = await commentsCollection.insertOne(comment);
+      res.send(result);
+  });
+
+  app.get("/comments/:id", async(req, res) => {
+    const id = req.params.id;
+    const query = {taskId: id};
+    const result = await commentsCollection.find(query).toArray();
+    res.send(result);
+  });
+
+  app.delete("/comments/:id", async(req, res) => {
+    const id = req.params.id;
+    const filter = {_id: ObjectId(id)};
+    const result = await commentsCollection.deleteOne(filter);
+    res.send(result);
+})
 
 
   } finally {
